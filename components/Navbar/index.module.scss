@@ -1,0 +1,18 @@
+.navbar {
+  position: relative;
+  width: 100px;
+  height: 56px;
+  line-height: 56px;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  transform: translateX(25%);
+
+  .icon {
+    position: absolute;
+    left: -160px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
