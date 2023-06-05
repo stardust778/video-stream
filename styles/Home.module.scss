@@ -1,0 +1,15 @@
+.app {
+  background: #fb7299;
+  color: white;
+  height: 100%;
+  .banner {
+    width: 100%;
+    height: 100%;
+  }
+  .footer {
+    display: flex;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+  }
+}

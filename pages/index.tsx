@@ -1,3 +1,5 @@
+import { FC, useEffect } from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Tabs from '@/components/Tabs';
 import Head from 'next/head';
@@ -5,9 +7,16 @@ import Image from 'next/image';
 import BannerImage from '@/assets/banner.png';
 import FooterImage from '@/assets/footer.jpg';
 import Category from '@/components/Category';
+import styles from '@/styles/Home.module.scss';
+import { dataSource } from '@/constans/data'; 
+
+interface Props {
+  test: string;
+  videoData: any;
+}
 
 
-export default function Home() {
+const Home: FC<Props> = function(props) {
   return (
     <>
       <Head>
@@ -16,22 +25,26 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
+      {/* <Link href={'/posts/test'}>去test</Link> */}
+      <div className={styles.app}>
         <Navbar />
         <Tabs />
-        <Image src={BannerImage} alt='banner' />
-        <h2>热门</h2>
-        <Category />
+        <Image src={BannerImage} alt='banner' className={styles.banner} />
+        <h2>{dataSource.hot.title}</h2>
+        <Category list={dataSource.hot.list}/>
 
-        <h2>直播</h2>
-        <Category />
+        <h2>{dataSource.live.title}</h2>
+        <Category list={dataSource.live.list}/>
 
-        <h2>推荐</h2>
-        <Category />
+        <h2>{dataSource.recommend.title}</h2>
+        <Category list={dataSource.recommend.list}/>
 
-        <Image src={FooterImage} alt='footer' />
-        <footer><span>@Bilibili 2023</span></footer>
-      </main>
+        <Image src={FooterImage} alt='footer' className={styles.banner}/>
+        <footer className={styles.footer}><span>@Bilibili 2023</span></footer>
+      </div>
     </>
   )
 }
+
+export default Home;
+
