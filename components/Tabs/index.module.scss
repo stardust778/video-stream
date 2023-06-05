@@ -1,4 +1,20 @@
 .tabs {
-  position: fixed;
-  top: 56px;
+  display: flex;
+  background: white;
+  height: 56px;
+  align-items: center;
+  padding: 16px;
+
+  li {
+    height: 32px;
+    color: grey;
+    background: #dddd;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    padding: 8px 16px;
+    border-radius: 50px;
+  }
 }
