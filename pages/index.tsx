@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Tabs from '@/components/Tabs';
@@ -9,6 +9,7 @@ import FooterImage from '@/assets/footer.jpg';
 import Category from '@/components/Category';
 import styles from '@/styles/Home.module.scss';
 import { dataSource, VideoData } from '@/constans/data'; 
+import { debounce } from 'lodash';
 import classnames from 'classnames';
 
 interface Props {
@@ -16,26 +17,118 @@ interface Props {
   videoData: VideoData;
 }
 
+// 1. 可以显示和隐藏的 NavBar
+//  1.1 往下滚动，则隐藏
+//  1.2 往上滚动，则展示
+// 2. 可以吸底的 Tabs
+// 3. 视频流
+//   3.1 命中红线，会播放
+//   3.2 未命中红线，播放上一次播放的视频
+//   3.3 滚动时，暂停视频
+//   3.4 初始时，播放头两个视频
+//   3.5 横向滚动时，在可视窗口时播放
+
+
+// 判断视频是否在可视区域
+const isInview = (el: HTMLVideoElement) => {
+  const { left, right, top, bottom } = el.getBoundingClientRect();
+  // 水平方向判断
+  const isHorizontalInView = 0 < left && right < window.innerWidth;
+
+  // 垂直方向判断
+  const isVerticalInView = top < window.innerHeight / 2 && window.innerHeight / 2 < bottom;
+
+  // 最终判断结果
+  return isHorizontalInView && isVerticalInView;
+}
+
 
 const Home: FC<Props> = function(props) {
   const oldYRef = useRef<number>(0);
   const contentRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef<HTMLDivElement>(null);
   const [hidden, setHidden] = useState<boolean>(false);
+  const playingIds = useRef<string[]>([]);
+  const isScrolling = useRef<boolean>(false);
+
+  // 播放视频
+  const playAllVideos = (ids: string[]) => {
+    if (ids.length === 0) return;
+
+    // 记录当前播放的视频id
+    playingIds.current = ids;
+
+    const selector = ids.map(id => `[data-video-id="${id}"]`).join(',');
+    const videoEls: HTMLVideoElement[] | null = Array.from(document.querySelectorAll(selector));
+    videoEls.forEach(el => el.play());
+  }
+
+  // 停止并重置视频
+  const stopAllVideos = (ids: string[]) => {
+    if (ids.length === 0) return;
+    const selector = ids.map(id => `[data-video-id="${id}"]`).join(',');
+    const videoEls: HTMLVideoElement[] | null = Array.from(document.querySelectorAll(selector));
+    videoEls.forEach(el => {
+      el.pause();
+      // 重置视频进度条
+      el.currentTime = 0;
+    });
+  }
+
+  const pauseAllVideps = (ids: string[]) => {
+    if (ids.length === 0) return;
+    const selector = ids.map(id => `[data-video-id="${id}"]`).join(',');
+    const videoEls: HTMLVideoElement[] | null = Array.from(document.querySelectorAll(selector));
+    videoEls.forEach(el => {
+      el.pause();
+    });
+  }
+
+  const onScrollEnd  = useCallback(debounce(() => {
+    // video元素
+    const videoEls = Array.from(document.querySelectorAll('video'));
+    // 找到命中规则的元素
+    const inViewVideos = videoEls.filter(el => isInview(el));
+    if (inViewVideos.length) {
+      const ids: string[] = inViewVideos.map(el => el.getAttribute('data-video-id') || '');
+
+      // 旧视频重置,旧视频就是以前的视频id不在这次播放列表中
+      const stopIds = playingIds.current.filter(id => !ids.includes(id));
+      stopAllVideos(stopIds);
+      
+      // 播放新视频
+      playAllVideos(ids);
+    } else { 
+      playAllVideos(playingIds.current);
+    }
+    isScrolling.current = false;
+  }, 500), []);
 
   const onScroll = () => {
-    if (contentRef.current) {
-      const { top: newY } = contentRef.current.getBoundingClientRect();
-      const diff = newY - oldYRef.current;
+    if (!isScrolling.current) {
+      pauseAllVideps(playingIds.current);
+    }
 
-      if (diff < 0) {
-        // 隐藏
-        setHidden(true);
-      } else {
-        // 显示
-        setHidden(false);
+    isScrolling.current = true;
+
+    if (contentRef.current && offsetRef.current) {
+      const { bottom: offsetBottom  } = offsetRef.current.getBoundingClientRect();
+      // 下滑超过 56 px 才做交互
+      if (offsetBottom < 0) {
+        const { top: newY } = contentRef.current.getBoundingClientRect();
+        const diff = newY - oldYRef.current;
+        oldYRef.current = diff;
+        setHidden(diff < 0);
       }
     }
+     // 滚动停500ms修改滚动状态
+     onScrollEnd ();
   }
+
+  useEffect(() => {
+    const initVideoIds = dataSource.hot.list.slice(0, 2).map(item => item.id);
+    playAllVideos(initVideoIds);
+  }, []);
 
   return (
     <>
@@ -55,17 +148,19 @@ const Home: FC<Props> = function(props) {
         <div className={styles.line} />
 
         <div className={styles.scrollView} onScroll={onScroll}>
+          <div ref={offsetRef} className={styles.offset}/>
+
           <Image src={BannerImage} alt='banner' className={styles.banner} />
           
           <div className={styles.content} ref={contentRef}>
             <h2>{dataSource.hot.title}</h2>
-            <Category list={dataSource.hot.list}/>
+            <Category list={dataSource.hot.list} onScroll={onScroll} />
 
             <h2>{dataSource.live.title}</h2>
-            <Category list={dataSource.live.list}/>
+            <Category list={dataSource.live.list} onScroll={onScroll} />
 
             <h2>{dataSource.recommend.title}</h2>
-            <Category list={dataSource.recommend.list}/>
+            <Category list={dataSource.recommend.list} onScroll={onScroll} />
           </div>
 
           <Image src={FooterImage} alt='footer' className={styles.banner}/>

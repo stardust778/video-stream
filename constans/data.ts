@@ -106,3 +106,13 @@ export const dataSource = {
     list: videoList3,
   },
 }
+
+export function debounce(fn: Function, wait: number = 500) {
+  let timer: any = null;
+  return function() {
+    timer && clearTimeout(timer);
+    timer = setTimeout(() => {
+      fn.apply(null);
+    }, wait)
+  }
+}
