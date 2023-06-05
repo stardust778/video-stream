@@ -30,6 +30,9 @@ const Home: FC<Props> = function(props) {
         <Navbar />
         <Tabs />
         <Image src={BannerImage} alt='banner' className={styles.banner} />
+
+        <div className={styles.line} />
+
         <h2>{dataSource.hot.title}</h2>
         <Category list={dataSource.hot.list}/>
 
