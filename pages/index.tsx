@@ -1,5 +1,4 @@
 import { FC, useEffect, useRef, useState, useCallback } from 'react';
-import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Tabs from '@/components/Tabs';
 import Head from 'next/head';
@@ -8,13 +7,12 @@ import BannerImage from '@/assets/banner.png';
 import FooterImage from '@/assets/footer.jpg';
 import Category from '@/components/Category';
 import styles from '@/styles/Home.module.scss';
-import { dataSource, VideoData } from '@/constans/data'; 
-import { debounce } from 'lodash';
+import { dataSource, videoDataSource, debounce } from '@/constans/data'; 
 import classnames from 'classnames';
 
 interface Props {
   test: string;
-  videoData: VideoData;
+  videoData: videoDataSource;
 }
 
 // 1. 可以显示和隐藏的 NavBar
@@ -50,6 +48,7 @@ const Home: FC<Props> = function(props) {
   const [hidden, setHidden] = useState<boolean>(false);
   const playingIds = useRef<string[]>([]);
   const isScrolling = useRef<boolean>(false);
+  const { videoData } = props;
 
   // 播放视频
   const playAllVideos = (ids: string[]) => {
@@ -85,6 +84,7 @@ const Home: FC<Props> = function(props) {
   }
 
   const onScrollEnd  = useCallback(debounce(() => {
+    console.log('end');
     // video元素
     const videoEls = Array.from(document.querySelectorAll('video'));
     // 找到命中规则的元素
@@ -138,7 +138,6 @@ const Home: FC<Props> = function(props) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {/* <Link href={'/posts/test'}>去test</Link> */}
       <div className={styles.app}>
         <header className={classnames(styles.header, { [styles.hidden]: hidden })}>
           <Navbar title={'首页'}/>
@@ -153,13 +152,21 @@ const Home: FC<Props> = function(props) {
           <Image src={BannerImage} alt='banner' className={styles.banner} />
           
           <div className={styles.content} ref={contentRef}>
-            <h2>{dataSource.hot.title}</h2>
+            {/* <h2>{dataSource.hot.title}</h2>
             <Category list={dataSource.hot.list} onScroll={onScroll} />
 
             <h2>{dataSource.live.title}</h2>
             <Category list={dataSource.live.list} onScroll={onScroll} />
 
             <h2>{dataSource.recommend.title}</h2>
+            <Category list={dataSource.recommend.list} onScroll={onScroll} /> */}
+            <h2>{videoData.hot.title}</h2>
+            <Category list={dataSource.hot.list} onScroll={onScroll} />
+
+            <h2>{videoData.live.title}</h2>
+            <Category list={dataSource.live.list} onScroll={onScroll} />
+
+            <h2>{videoData.recommend.title}</h2>
             <Category list={dataSource.recommend.list} onScroll={onScroll} />
           </div>
 
@@ -172,4 +179,14 @@ const Home: FC<Props> = function(props) {
 }
 
 export default Home;
+
+export const getServerSideProps = async () => {
+  const res = await fetch('http://localhost:3000/api/category');
+  const data = await res.json();
+  return {
+    props: {
+      ...data
+    }
+  }
+}
 

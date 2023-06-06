@@ -28,7 +28,7 @@ interface Category {
 }
 
 type Data = {
-  data: Category
+  videoData: Category
 }
 
 const videoList1: VideoData[] = [
@@ -116,9 +116,7 @@ const dataSource: Category = {
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<Data>
 ) {
-  // res.status(200).send({ data: dataSource })
-  res.status(200).send({ name: 'src' })
-
+  res.status(200).send({ videoData: dataSource })
 }

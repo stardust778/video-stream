@@ -107,6 +107,8 @@ export const dataSource = {
   },
 }
 
+export type videoDataSource = typeof dataSource;
+
 export function debounce(fn: Function, wait: number = 500) {
   let timer: any = null;
   return function() {
