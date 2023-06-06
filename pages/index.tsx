@@ -84,7 +84,6 @@ const Home: FC<Props> = function(props) {
   }
 
   const onScrollEnd  = useCallback(debounce(() => {
-    console.log('end');
     // video元素
     const videoEls = Array.from(document.querySelectorAll('video'));
     // 找到命中规则的元素
