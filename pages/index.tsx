@@ -95,7 +95,7 @@ const Home: FC<Props> = function(props) {
       const stopIds = playingIds.current.filter(id => !ids.includes(id));
       stopAllVideos(stopIds);
       
-      // 播放新视频
+      // 播放新视频 
       playAllVideos(ids);
     } else { 
       playAllVideos(playingIds.current);
@@ -116,7 +116,7 @@ const Home: FC<Props> = function(props) {
       if (offsetBottom < 0) {
         const { top: newY } = contentRef.current.getBoundingClientRect();
         const diff = newY - oldYRef.current;
-        oldYRef.current = diff;
+        oldYRef.current = newY;
         setHidden(diff < 0);
       }
     }
@@ -125,7 +125,7 @@ const Home: FC<Props> = function(props) {
   }
 
   useEffect(() => {
-    const initVideoIds = dataSource.hot.list.slice(0, 2).map(item => item.id);
+    const initVideoIds = videoData.hot.list.slice(0, 2).map(item => item.id);
     playAllVideos(initVideoIds);
   }, []);
 
@@ -160,13 +160,13 @@ const Home: FC<Props> = function(props) {
             <h2>{dataSource.recommend.title}</h2>
             <Category list={dataSource.recommend.list} onScroll={onScroll} /> */}
             <h2>{videoData.hot.title}</h2>
-            <Category list={dataSource.hot.list} onScroll={onScroll} />
+            <Category list={videoData.hot.list} onScroll={onScroll} />
 
             <h2>{videoData.live.title}</h2>
-            <Category list={dataSource.live.list} onScroll={onScroll} />
+            <Category list={videoData.live.list} onScroll={onScroll} />
 
             <h2>{videoData.recommend.title}</h2>
-            <Category list={dataSource.recommend.list} onScroll={onScroll} />
+            <Category list={videoData.recommend.list} onScroll={onScroll} />
           </div>
 
           <Image src={FooterImage} alt='footer' className={styles.banner}/>
