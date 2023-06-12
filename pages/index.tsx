@@ -125,7 +125,8 @@ const Home: FC<Props> = function(props) {
   }
 
   useEffect(() => {
-    const initVideoIds = videoData.hot.list.slice(0, 2).map(item => item.id);
+    const initVideoIds = dataSource.hot.list.slice(0, 2).map(item => item.id);
+    // const initVideoIds = videoData.hot.list.slice(0, 2).map(item => item.id);
     playAllVideos(initVideoIds);
   }, []);
 
@@ -151,22 +152,22 @@ const Home: FC<Props> = function(props) {
           <Image src={BannerImage} alt='banner' className={styles.banner} />
           
           <div className={styles.content} ref={contentRef}>
-            {/* <h2>{dataSource.hot.title}</h2>
+            <h2>{dataSource.hot.title}</h2>
             <Category list={dataSource.hot.list} onScroll={onScroll} />
 
             <h2>{dataSource.live.title}</h2>
             <Category list={dataSource.live.list} onScroll={onScroll} />
 
             <h2>{dataSource.recommend.title}</h2>
-            <Category list={dataSource.recommend.list} onScroll={onScroll} /> */}
-            <h2>{videoData.hot.title}</h2>
+            <Category list={dataSource.recommend.list} onScroll={onScroll} />
+            {/* <h2>{videoData.hot.title}</h2>
             <Category list={videoData.hot.list} onScroll={onScroll} />
 
             <h2>{videoData.live.title}</h2>
             <Category list={videoData.live.list} onScroll={onScroll} />
 
             <h2>{videoData.recommend.title}</h2>
-            <Category list={videoData.recommend.list} onScroll={onScroll} />
+            <Category list={videoData.recommend.list} onScroll={onScroll} /> */}
           </div>
 
           <Image src={FooterImage} alt='footer' className={styles.banner}/>
@@ -179,13 +180,13 @@ const Home: FC<Props> = function(props) {
 
 export default Home;
 
-export const getServerSideProps = async () => {
-  const res = await fetch('http://localhost:3000/api/category');
-  const data = await res.json();
-  return {
-    props: {
-      ...data
-    }
-  }
-}
+// export const getServerSideProps = async () => {
+//   const res = await fetch('http://localhost:3000/api/category');
+//   const data = await res.json();
+//   return {
+//     props: {
+//       ...data
+//     }
+//   }
+// }
 
